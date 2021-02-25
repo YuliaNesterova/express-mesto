@@ -1,24 +1,24 @@
 const User = require('../models/user');
-const {
-  ERROR_CODE_INVALID, ERROR_CODE_NOT_FOUND, ERROR_CODE_SERVER, CODE_OK,
-} = require('../utils/responces');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then((users) => res.status(CODE_OK).send({ data: users }))
-    .catch(() => res.status(ERROR_CODE_SERVER).send({ message: 'Произошла ошибка' }));
+    .then((users) => res.status(200).send(users))
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
 };
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
-      res.status(CODE_OK).send(user);
+      if (!user) {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      }
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERROR_CODE_NOT_FOUND).send({ message: 'Нет пользователя с таким id' });
+        res.status(400).send({ message: 'Нет пользователя с таким id' });
       } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -27,12 +27,12 @@ module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.status(CODE_OK).send({ data: user }))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INVALID).send({ message: 'Введены невалидные данные' });
+        res.status(400).send({ message: 'Введены невалидные данные' });
       } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -46,13 +46,20 @@ module.exports.updateUser = (req, res) => {
     upsert: true,
   })
     .then((user) => {
-      res.status(CODE_OK).send(user);
+      if (!user) {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else if (!req.body) {
+        res.status(400).send({ message: 'Не введены данные' });
+      }
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INVALID).send({ message: 'Введены невалидные данные' });
+        res.status(400).send({ message: 'Введены невалидные данные' });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Нет пользователя с таким id' });
       } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 };
@@ -65,12 +72,21 @@ module.exports.updateAvatar = (req, res) => {
     runValidators: true,
     upsert: true,
   })
-    .then((user) => res.status(CODE_OK).send(user))
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else if (!avatar) {
+        res.status(400).send({ message: 'Не введены данные' });
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(ERROR_CODE_INVALID).send({ message: 'Введены невалидные данные' });
+        res.status(400).send({ message: 'Введены невалидные данные' });
+      } else if (err.name === 'CastError') {
+        res.status(400).send({ message: 'Нет пользователя с таким id' });
       } else {
-        res.status(ERROR_CODE_SERVER).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка' });
       }
     });
 };
