@@ -3,7 +3,7 @@ const Card = require('../models/card');
 module.exports.getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка сервера' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -16,19 +16,25 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Введены невалидные данные' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
-    .then((card) => res.status(200).send(card))
+    .then((card) => {
+      if (!card) {
+        res.status(404).send({ message: 'Нет карточки с таким id' });
+      } else {
+        res.status(200).send(card);
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет карточки с таким id' });
+        res.status(400).send({ message: 'Введен невалидный id карточки' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
@@ -42,14 +48,15 @@ module.exports.likeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
+      } else {
+        res.status(200).send(card);
       }
-      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет карточки с таким id' });
+        res.status(400).send({ message: 'Введен невалидный id карточки' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
@@ -63,14 +70,15 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       if (!card) {
         res.status(404).send({ message: 'Нет карточки с таким id' });
+      } else {
+        res.status(200).send(card);
       }
-      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет карточки с таким id' });
+        res.status(400).send({ message: 'Введен невалидный id карточки' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };

@@ -3,7 +3,7 @@ const User = require('../models/user');
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.status(200).send(users))
-    .catch(() => res.status(500).send({ message: 'Произошла ошибка' }));
+    .catch(() => res.status(500).send({ message: 'Произошла ошибка сервера' }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -11,14 +11,15 @@ module.exports.getUserById = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
+      } else {
+        res.status(200).send(user);
       }
-      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет пользователя с таким id' });
+        res.status(400).send({ message: 'Введен невалидный id пользователя' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
@@ -32,7 +33,7 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Введены невалидные данные' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
@@ -48,18 +49,17 @@ module.exports.updateUser = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
-      } else if (!req.body) {
-        res.status(400).send({ message: 'Не введены данные' });
+      } else {
+        res.status(200).send(user);
       }
-      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Введены невалидные данные' });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет пользователя с таким id' });
+        res.status(400).send({ message: 'Введен невалидный id пользователя' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
@@ -75,18 +75,17 @@ module.exports.updateAvatar = (req, res) => {
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Нет пользователя с таким id' });
-      } else if (!avatar) {
-        res.status(400).send({ message: 'Не введены данные' });
+      } else {
+        res.status(200).send(user);
       }
-      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(400).send({ message: 'Введены невалидные данные' });
       } else if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Нет пользователя с таким id' });
+        res.status(400).send({ message: 'Введен невалидный id пользователя' });
       } else {
-        res.status(500).send({ message: 'Произошла ошибка' });
+        res.status(500).send({ message: 'Произошла ошибка сервера' });
       }
     });
 };
